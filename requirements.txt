@@ -12,6 +12,7 @@ dash==3.2.0
 dash-bootstrap-components==2.0.4
 debugpy==1.8.17
 decorator==5.2.1
+dotenv==0.9.9
 et_xmlfile==2.0.0
 executing==2.2.1
 fastjsonschema==2.21.2
@@ -55,6 +56,7 @@ pure_eval==0.2.3
 Pygments==2.19.2
 pyparsing==3.2.5
 python-dateutil==2.9.0.post0
+python-dotenv==1.2.1
 pytz==2025.2
 PyYAML==6.0.3
 pyzmq==27.1.0
