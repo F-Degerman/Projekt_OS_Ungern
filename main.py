@@ -60,7 +60,6 @@ def filter_df(stock, time_index):
 
     return dff.to_json()
 
-
 # when something changes in the input component, the code in function below will run and update the output component
 # the components are connected through their id
 
