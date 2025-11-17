@@ -8,6 +8,7 @@ app = dash.Dash(__name__)
 app.layout = html.Div([
     html.H1("OS-dashboard"),
     html.P("Välj land"),
+    # TODO Göra om till sporter i dropdown. 
     dcc.Dropdown(
         id="land-dropdown",
         options=[{"label": "Ungern", "value": "HUN"},
