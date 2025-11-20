@@ -5,6 +5,8 @@ import dash
 from os_analysis import figur_gender_trend
 from os_analysis import figur_age_hist   # kön-grafen
 
+# anonoymiseringen ska finnas med här också. Även om den inte används senare. 
+
 app = dash.Dash(__name__)
 
 app.layout = html.Div([

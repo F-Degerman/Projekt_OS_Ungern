@@ -23,7 +23,7 @@ sweden_unique = (
     .drop_duplicates(subset=["ID", "Year", "Event"])
 )
 
-# Kön per år (sommar OS)
+# Ungerns deltagande utifrån kön per år (sommar OS)
 
 def figur_gender_trend(noc="HUN", season="Summer"):
     """
@@ -57,7 +57,7 @@ def figur_gender_trend(noc="HUN", season="Summer"):
     )
     return fig
 
-
+# Ungerns deltagande utifrån ålder per år (sommar-OS)
 
 def figur_age_hist(noc="HUN", season="Summer"):
     """
