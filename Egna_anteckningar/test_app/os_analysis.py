@@ -23,6 +23,45 @@ sweden_unique = (
     .drop_duplicates(subset=["ID", "Year", "Event"])
 )
 
+# En graf med både Ungern (HUN) och Sverige (SWE). 
+# Deltagande utifrån kön under sommar-OS 
+# (för att slippa få med vinter då ungern inte har höggt deltagande där + 
+# vinterårer skiljer sig så mycket i deltagande jämfört med sommar.)
+
+def figur_gender_trend_hun_swe(season="Summer"):
+    dff = all_unique[
+        (all_unique["NOC"].isin(["HUN", "SWE"])) &
+        (all_unique["Season"] == season)
+    ]
+
+    yearly_gender = (
+        dff.groupby(["Year", "Sex", "NOC"])["ID"]
+        .nunique()
+        .reset_index()
+        .rename(columns={"ID": "Antal_deltagare"})
+    )
+
+    # Välj hur du vill skilja linjerna åt:
+    # här: färg = kön, strecktyp = land
+    fig = px.line(
+        yearly_gender,
+        x="Year",
+        y="Antal_deltagare",
+        color="NOC",          # M/F får olika färg
+        line_dash="Sex",      # HUN/SWE får olika linjetyp
+        markers=True,
+        title=f"Antal deltagare per år och kön ({season}-OS) – Ungern vs Sverige"
+    )
+
+    fig.update_layout(
+        xaxis_title="År",
+        yaxis_title="Antal deltagare",
+        legend_title_text="Kön / Land"
+    )
+
+    return fig
+
+
 # Ungerns deltagande utifrån kön per år (sommar OS)
 
 def figur_gender_trend(noc="HUN", season="Summer"):
