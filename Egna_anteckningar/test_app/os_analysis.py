@@ -23,53 +23,14 @@ sweden_unique = (
     .drop_duplicates(subset=["ID", "Year", "Event"])
 )
 
-# En graf med både Ungern (HUN) och Sverige (SWE). 
-# Deltagande utifrån kön under sommar-OS 
-# (för att slippa få med vinter då ungern inte har höggt deltagande där + 
-# vinterårer skiljer sig så mycket i deltagande jämfört med sommar.)
+# Funktion för köns-trend figur (SWE & HUN). Gemensamma axelgränser. 
 
-def figur_gender_trend_hun_swe(season="Summer"):
-    dff = all_unique[
-        (all_unique["NOC"].isin(["HUN", "SWE"])) &
-        (all_unique["Season"] == season)
-    ]
-
-    yearly_gender = (
-        dff.groupby(["Year", "Sex", "NOC"])["ID"]
-        .nunique()
-        .reset_index()
-        .rename(columns={"ID": "Antal_deltagare"})
-    )
-
-    # Välj hur du vill skilja linjerna åt:
-    # här: färg = kön, strecktyp = land
-    fig = px.line(
-        yearly_gender,
-        x="Year",
-        y="Antal_deltagare",
-        color="NOC",          # M/F får olika färg
-        line_dash="Sex",      # HUN/SWE får olika linjetyp
-        markers=True,
-        title=f"Antal deltagare per år och kön ({season}-OS) – Ungern vs Sverige"
-    )
-
-    fig.update_layout(
-        xaxis_title="År",
-        yaxis_title="Antal deltagare",
-        legend_title_text="Kön / Land"
-    )
-
-    return fig
-
-
-# Ungerns deltagande utifrån kön per år (sommar OS)
-
-def figur_gender_trend(noc="HUN", season="Summer"):
+def figur_gender_trend(noc="HUN", x_range=None, y_range=None):
     """
-    Skapar en plotly-figur som visar antal unika deltagare per år
-    i OS för valt land (NOC) och säsong (Summer/Winter), uppdelat på kön.
+    Antal unika deltagare per år i OS (alla säsonger),
+    för valt land (NOC), uppdelat på kön.
     """
-    dff = all_unique[(all_unique["NOC"] == noc) & (all_unique["Season"] == season)]
+    dff = all_unique[all_unique["NOC"] == noc]
 
     yearly_gender = (
         dff.groupby(["Year", "Sex"])["ID"]
@@ -78,16 +39,20 @@ def figur_gender_trend(noc="HUN", season="Summer"):
         .rename(columns={"ID": "Antal_deltagare"})
     )
 
-    titel = f"Antal deltagare ({season}-OS) ({noc}) per år och kön"
-
     fig = px.line(
         yearly_gender,
         x="Year",
         y="Antal_deltagare",
         color="Sex",
         markers=True,
-        title=titel
+        title=f"Antal deltagare per år och kön – {noc} (alla OS)"
     )
+
+    # Om vi fått in gemensamma axelgränser: använd dem
+    if x_range is not None:
+        fig.update_xaxes(range=x_range)
+    if y_range is not None:
+        fig.update_yaxes(range=y_range)
 
     fig.update_layout(
         xaxis_title="År",
@@ -96,39 +61,22 @@ def figur_gender_trend(noc="HUN", season="Summer"):
     )
     return fig
 
-# Ungerns deltagande utifrån ålder per år (sommar-OS)
+# Beräknar gemensam x- och y-axelrange för Ungern + Sverige, så att graferna får samma skala.
+def get_shared_gender_axis_ranges():
 
-def figur_age_hist(noc="HUN", season="Summer"):
-    """
-    Histogram över åldersfördelning för valt land (NOC) och säsong (Summer/Winter).
-    Bygger på all_unique (unika deltaganden).
-    """
-    dff = all_unique[(all_unique["NOC"] == noc) & (all_unique["Season"] == season)].copy()
-    dff = dff[dff["Age"].notna()]  # ta bort rader utan ålder
+    dff = all_unique[all_unique["NOC"].isin(["HUN", "SWE"])]
 
-    if dff.empty:
-        # liten fallback om det inte finns data
-        fig = px.histogram(title=f"Ingen åldersdata för {noc} – {season}-OS")
-        return fig
-
-    age_min = dff["Age"].min()
-    age_max = dff["Age"].max()
-    nbins = int(age_max - age_min)
-
-    fig = px.histogram(
-        dff,
-        x="Age",
-        nbins=nbins,
-        title=f"Åldersfördelning – {noc}, {season}-OS"
+    yearly_gender = (
+        dff.groupby(["Year", "Sex"])["ID"]
+        .nunique()
+        .reset_index()
     )
 
-    fig.update_xaxes(
-        dtick=2,
-        tickangle=45,
-        title="Ålder"
-    )
-    fig.update_layout(
-        yaxis_title="Antal deltagare"
-    )
+    x_min = yearly_gender["Year"].min()
+    x_max = yearly_gender["Year"].max()
+    y_max = yearly_gender["ID"].max()
 
-    return fig
+    x_range = [x_min - 1, x_max + 1]
+    y_range = [0, y_max * 1.1]
+
+    return x_range, y_range

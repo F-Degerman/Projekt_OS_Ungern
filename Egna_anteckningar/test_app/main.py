@@ -1,45 +1,27 @@
 from dash import dcc, html
-from dash.dependencies import Input, Output
 import dash
 
-from os_analysis import figur_gender_trend
-from os_analysis import figur_age_hist 
-from os_analysis import figur_gender_trend_hun_swe  # kön-grafen
-
-# anonoymiseringen ska finnas med här också. Även om den inte används senare. 
+from os_analysis import figur_gender_trend, get_shared_gender_axis_ranges
 
 app = dash.Dash(__name__)
 
+# Beräkna gemensamma axelgränser en gång
+x_range, y_range = get_shared_gender_axis_ranges()
+
 app.layout = html.Div([
-    html.H1("Statistik: Ungerns deltagande i OS untifrån ett historiskt perspektiv"),
-    html.P("Välj område:"),
-    dcc.Dropdown(
-        id="metric-dropdown",
-        options=[
-            {"label": "Kön",        "value": "gender"},
-            {"label": "Ålder",      "value": "age"},
-            {"label": "Deltagande", "value": "participation"},
-            {"label": "Medaljer",   "value": "medals"},
-        ],
-        value="gender"
-    ),
+    html.H1("Deltagande i OS utifrån kön – Ungern vs Sverige"),
 
-    dcc.Graph(id="main-graph")
+    html.Div([
+        dcc.Graph(
+            id="hun-gender-graph",
+            figure=figur_gender_trend(noc="HUN", x_range=x_range, y_range=y_range)
+        ),
+        dcc.Graph(
+            id="swe-gender-graph",
+            figure=figur_gender_trend(noc="SWE", x_range=x_range, y_range=y_range)
+        ),
+    ], style={"display": "flex", "gap": "20px"})
 ])
-
-@app.callback(
-    Output("main-graph", "figure"),
-    Input("metric-dropdown", "value")
-)
-def uppdatera_figur(vald_metric):
-    if vald_metric == "gender":
-        return figur_gender_trend_hun_swe(season=vald_sasong)
-    #elif vald_metric == "age":
-       # return figur_age_hist(noc=valt_land, season="Summer")
-
-    # osv...
-    # fallback
-    return figur_gender_trend_hun_swe(season="Summer")
 
 if __name__ == "__main__":
     app.run(debug=True)
