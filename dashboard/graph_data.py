@@ -162,8 +162,28 @@ unique_medals_sport_52.sort_values(by= "Total", ascending=False, inplace=True)
 
 hun_top10_sports_52 = unique_medals_sport_52.reset_index()
 
-## ADRIAN 2
+## Hungary: medals grouped by sport and gender 1952
+top_sports_52 = hun_top10_sports_52["Sport"]
+hun52_top_sports_df = hun_52[hun_52["Sport"].isin(top_sports_52)]
+ 
+hun52_top_sports_df = hun52_top_sports_df.drop_duplicates(subset=["Sport", "Event", "Medal"])
+ 
+medal_by_sport_sex52 = hun52_top_sports_df.groupby(["Sport", "Sex", "Medal"]).size().reset_index(name="Count")
+medal_by_sport_sex52 = medal_by_sport_sex52.groupby(["Sport", "Sex"])["Count"].sum().reset_index(name="Total")
 
+## Overall: medal comparison of Eastern European nations 1952
+east_nations = ['RUS', 'URS', 'EUN', 'UKR', 'BLR', 'MDA', 'GEO', 'ARM', 'AZE', 'KAZ',
+ 'UZB', 'KGZ', 'TJK', 'LTU', 'LAT', 'EST',
+ 'HUN', 'POL', 'ROU', 'BUL', 'ALB', 'YUG', 'SCG', 'SRB', 'CRO', 'SLO',
+ 'BIH', 'MKD', 'MNE', 'KOS',
+ 'CZE', 'TCH', 'SVK']
+ 
+east_nations_df = df[df["NOC"].isin(east_nations)]
+ 
+east_nations52_df = east_nations_df[east_nations_df["Year"] == 1952]
+ 
+unique_medals_by_east_noc = east_nations52_df.drop_duplicates(subset=["NOC", "Sport", "Event", "Medal"])
+medal_counts_east_noc52 = unique_medals_by_east_noc.groupby(["NOC", "Medal"]).size().reset_index(name="Count")
 
 ## Gymnastics: gender comparison all years vs 1952
 # All years
@@ -192,7 +212,11 @@ gymnastics_1952_combined["Period"] = "1952"
 
 gymnastics_gender_all = pd.concat([gymnastics_combined, gymnastics_1952_combined])
 
-## FANNY 2
+## Hungary: medal distribution across time based on gender
+hun = hun_df[hun_df["Year"].between(1920, 1968)]
+
+gender_summary = (hun.groupby(["Year", "Sex"]).agg(Medalists=("Medal", lambda s: s.notna().sum()), Non_medalists=("Medal", lambda s: s.isna().sum())).reset_index())
+gender_summary["Year_sex"] = gender_summary["Year"].astype(str) + " " + gender_summary["Sex"]
 
 ## ENDING
 # NOTE: copied from Copilot after prompting a px.scatter() with exploding confetti in front of a text

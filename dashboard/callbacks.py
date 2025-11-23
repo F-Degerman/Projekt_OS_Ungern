@@ -1,5 +1,6 @@
 import plotly.express as px
-from graph_data import aim25g_df, final_participants, medals_sport, medals_olympic, medals_olympic_d, hun_top10_sports_52, gymnastics_gender_all, confetti
+import plotly.graph_objects as go
+from graph_data import aim25g_df, final_participants, medals_sport, medals_olympic, medals_olympic_d, hun_top10_sports_52, medal_by_sport_sex52, medal_counts_east_noc52, gymnastics_gender_all, gender_summary, confetti
 from dash import Input, Output
 
 def _style_fig(fig, height=650):
@@ -53,7 +54,7 @@ def register_callbacks(app):
         elif selected_value == "hun_most_medals":
             question = "In which sports has Hungary earned the most medals?"
             fig = px.bar(
-                data_frame=medals_sport,
+                medals_sport,
                 x=medals_sport.index, 
                 y="Medals", 
                 title="Hungary: medals won per sport", 
@@ -64,9 +65,9 @@ def register_callbacks(app):
         
         ## Hungary: medals won per Olympics
         elif selected_value == "hun_medals":
-            question = "How many medals has Hungary won at each Olympics and why are medal counts for some years missing?"
+            question = "How many medals has Hungary won at each Olympic Game?"
             fig = px.bar(
-                data_frame=medals_olympic,
+                medals_olympic,
                 x="Year", 
                 y="Medals", 
                 title="Hungary: medals won per Olympics", 
@@ -83,7 +84,7 @@ def register_callbacks(app):
         elif selected_value == "hun_medals_d":
             question = "What year did Hungary win the most (gold) medals?"
             fig = px.bar(
-                data_frame=medals_olympic_d,
+                medals_olympic_d,
                 x="SeasonYear", 
                 y="Count", 
                 title="Hungary: medals won per Olympics (detailed)", 
@@ -112,8 +113,40 @@ def register_callbacks(app):
                 color= "Sport")
             return _style_fig(fig), question
 
-        ## Adrian 2
+        ## Hungary: medals grouped by sport and gender 1952
+        elif selected_value == "medals_sport_gender":
+            question = "How was the medal distribution between genders in 1952?"
+            fig = px.bar(
+                medal_by_sport_sex52,
+                x="Sport",
+                y="Total",
+                color="Sex",
+                color_discrete_map={"M": "#004B23", "F": "#C50000"},
+                barmode="group",
+                title="Hungary: medals grouped by sport and gender",
+                subtitle="1952",
+                labels={"Total": "Medals", "Sport": "Sport", "Sex": "Gender"})
+            fig.for_each_trace(lambda label: label.update(name="Male" if label.name == "M" else "Female"))
+            return _style_fig(fig), question
 
+        ## Overall: medal comparison of Eastern European nations 1952
+        elif selected_value == "comp_een":
+            question = "How did Hungary perform compared to other Eastern European nations in 1952?"
+            fig = px.bar(
+                medal_counts_east_noc52,
+                x="NOC",
+                y="Count",
+                color="Medal",
+                barmode="stack",
+                title="Overall: medal comparison of Eastern European nations",
+                subtitle="1952",
+                labels={"Count":"Number of medals", "NOC":"Eastern European nations"},
+                color_discrete_map={"Gold": "orange", "Silver": "grey", "Bronze": "sienna"},
+                text_auto=True,
+                category_orders={"Medal": ["Bronze", "Silver", "Gold"]})
+            fig.update_traces(textangle=0)
+            fig.update_layout(legend_traceorder="reversed")
+            return _style_fig(fig), question
         
         ## Gymnastics: gender comparison
         elif selected_value == "gymnastics_gender":
@@ -129,6 +162,40 @@ def register_callbacks(app):
                 color="Sex", 
                 color_discrete_map={"M": "#004B23", "F": "#C50000"})
             fig.update_traces(textinfo="label+percent")
+            return _style_fig(fig), question
+        
+        ## Hungary: medal distribution across time based on gender
+        elif selected_value == "medal_dist_gender":
+            question = "How many Hungarian male and female medalists have there been throughout history?"
+            fig = go.Figure()
+            
+            fig.add_bar(
+                x=gender_summary["Year_sex"],
+                y=gender_summary["Medalists"],
+                name="Medalists",
+                hovertemplate="Medalists: %{y}<extra></extra>", 
+                marker_color="orange")
+            
+            fig.add_bar(
+                x=gender_summary.loc[gender_summary["Sex"]=="F", "Year_sex"],
+                y=gender_summary.loc[gender_summary["Sex"]=="F", "Non_medalists"],
+                name="Female non-medalists",
+                hovertemplate="Female, no medal: %{y}<extra></extra>", 
+                marker_color="#C50000")
+            
+            fig.add_bar(
+                x=gender_summary.loc[gender_summary["Sex"]=="M", "Year_sex"],
+                y=gender_summary.loc[gender_summary["Sex"]=="M", "Non_medalists"],
+                name="Male non-medalists",
+                hovertemplate="Male, no medal: %{y}<extra></extra>", 
+                marker_color="#004B23")
+            
+            fig.update_layout(
+                barmode="stack",
+                title="Hungary: medal distribution across time based on gender", 
+                title_subtitle_text="1924-1968", 
+                xaxis_title="Year and gender",
+                yaxis_title="Number of participants")
             return _style_fig(fig), question
         
         ## ENDING
