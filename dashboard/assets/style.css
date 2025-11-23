@@ -1,0 +1,78 @@
+.header {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  margin-top: 30px;
+}
+
+.title {
+  font-size: 48px;
+  color: rgb(0, 105, 4);
+  font-weight: bold;
+  font: Verdana;
+  text-align: center;
+  text-shadow: black;
+}
+
+.logo {
+  height: 125px;
+}
+
+.dropdown {
+  width: 520px;
+  margin: 0 auto;
+  margin-top: 30px;
+  font-weight: bold;
+  border: 3px solid darkgreen;
+  border-radius: 5px;
+}
+
+.flag {
+  height: 125px;
+}
+
+.q-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.question {
+  margin-left: 30px;
+  margin-top: 30px;
+  margin-bottom: 30px;
+  font-weight: bold;
+  font-size: 24px;
+  text-align: center;
+  color: rgb(183, 0, 0);
+}
+
+.graph {
+  background-color: #f9f9f9;
+}
+
+label {
+  margin: 0 0.5rem 0 0.5rem;
+}
+
+input {
+  margin: 0 0.5rem 0 0.5rem;
+}
+
+label:hover {
+  cursor: pointer;
+}
+
+.Select-value {
+  cursor: pointer;
+}
+
+footer {
+  background-color: #e2ebfa;
+}
+
+/* for fixing footer covering contents */
+body {
+  padding-bottom: 5rem;
+  background-color: #f9f9f9;
+}
