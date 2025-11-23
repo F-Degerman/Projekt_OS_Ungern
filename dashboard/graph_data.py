@@ -152,13 +152,21 @@ melted = medals_olympic_d.melt(id_vars=["Year", "ExtraSeason"], value_vars=["Bro
 melted["SeasonYear"] = melted["ExtraSeason"] + " " + melted["Year"].astype(str)
 medals_olympic_d = melted.drop(["ExtraSeason"], axis=1)
 
-## 
+## Hungary: medals per sport 1952
+hun_52 = hun_df[hun_df["Year"] == 1952]
+
+unique_medal_event_52 = hun_52.drop_duplicates(subset=["Sport", "Event", "Medal"])
+unique_medals_sport_52 = unique_medal_event_52.groupby(["Sport", "Medal"]).size().unstack(fill_value=0)
+unique_medals_sport_52["Total"] = unique_medals_sport_52[["Gold", "Silver", "Bronze"]].sum(axis=1)
+unique_medals_sport_52.sort_values(by= "Total", ascending=False, inplace=True)
+
+hun_top10_sports_52 = unique_medals_sport_52.reset_index()
+
+## ADRIAN 2
 
 
-## 
-
-
-## Gymnastics: gender comparison
+## Gymnastics: gender comparison all years vs 1952
+# All years
 gymnastics_all = df[df["Sport"] == "Gymnastics"] 
 gymnastics_hun = df[(df["Sport"] == "Gymnastics") & (df["NOC"] == "HUN")]
 gymnastics_swe = df[(df["Sport"] == "Gymnastics") & (df["NOC"] == "SWE")]
@@ -168,8 +176,9 @@ hun_gymnastics_group = gymnastics_hun.assign(Group="Hungary")
 swe_gymnastics_group = gymnastics_swe.assign(Group="Sweden")
 
 gymnastics_combined = pd.concat([all_gymnastics_group, hun_gymnastics_group, swe_gymnastics_group])
+gymnastics_combined["Period"] = "All years"
 
-## Gymnastics: gender comparison 1952
+# 1952
 gymnastics_all_1952 = df[(df["Sport"] == "Gymnastics") & (df["Year"] == 1952)]
 gymnastics_hun_1952 = df[(df["Sport"] == "Gymnastics") & (df["NOC"] == "HUN") & (df["Year"] == 1952)]
 gymnastics_swe_1952 = df[(df["Sport"] == "Gymnastics") & (df["NOC"] == "SWE") & (df["Year"] == 1952)]
@@ -179,6 +188,11 @@ hun_gymnastics_1952_group = gymnastics_hun_1952.assign(Group="Hungary")
 swe_gymnastics_1952_group = gymnastics_swe_1952.assign(Group="Sweden")
 
 gymnastics_1952_combined = pd.concat([all_gymnastics_1952_group, hun_gymnastics_1952_group, swe_gymnastics_1952_group])
+gymnastics_1952_combined["Period"] = "1952"
+
+gymnastics_gender_all = pd.concat([gymnastics_combined, gymnastics_1952_combined])
+
+## FANNY 2
 
 ## ENDING
 # NOTE: copied from Copilot after prompting a px.scatter() with exploding confetti in front of a text

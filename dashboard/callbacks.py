@@ -1,5 +1,5 @@
 import plotly.express as px
-from graph_data import aim25g_df, final_participants, medals_sport, medals_olympic, medals_olympic_d, gymnastics_combined, gymnastics_1952_combined, confetti
+from graph_data import aim25g_df, final_participants, medals_sport, medals_olympic, medals_olympic_d, hun_top10_sports_52, gymnastics_gender_all, confetti
 from dash import Input, Output
 
 def _style_fig(fig, height=650):
@@ -99,8 +99,18 @@ def register_callbacks(app):
             fig.update_traces(textangle=0)
             return _style_fig(fig), question
 
-        ## Adrian 1
-
+        ## Hungary: medals per sport 1952
+        elif selected_value == "sport_medals_1952":
+            question = "In which sports did Hungary win medals during their peak year 1952?"
+            fig = px.bar(
+                hun_top10_sports_52, 
+                x= "Total", 
+                y= "Sport", 
+                title="Hungary: medals per sport 1952", 
+                subtitle="Team medals count as one medal", 
+                orientation= "h", 
+                color= "Sport")
+            return _style_fig(fig), question
 
         ## Adrian 2
 
@@ -109,27 +119,13 @@ def register_callbacks(app):
         elif selected_value == "gymnastics_gender":
             question = "What does the gender distribution in gymnastics look like?"
             fig = px.pie(
-                gymnastics_combined, 
+                gymnastics_gender_all, 
                 names="Sex", 
                 facet_col="Group", 
+                facet_row="Period", 
                 category_orders={"Group": ["All countries", "Hungary", "Sweden"]}, 
                 title="Gymnastics: gender comparison", 
-                subtitle="All years, all countries", 
-                color="Sex", 
-                color_discrete_map={"M": "#004B23", "F": "#C50000"})
-            fig.update_traces(textinfo="label+percent")
-            return _style_fig(fig), question
-        
-        ## Gymnastics: gender comparison 1952
-        elif selected_value == "gymnastics_gender_1952":
-            question = "How was the gender distribution in gymnastics in 1952?"
-            fig = px.pie(
-                gymnastics_1952_combined, 
-                names="Sex", 
-                facet_col="Group", 
-                category_orders={"Group": ["All countries", "Hungary", "Sweden"]}, 
-                title="Gymnastics: gender comparison in 1952", 
-                subtitle="Summer Olympics in Helsinki, Finland", 
+                subtitle="All years vs 1952", 
                 color="Sex", 
                 color_discrete_map={"M": "#004B23", "F": "#C50000"})
             fig.update_traces(textinfo="label+percent")
