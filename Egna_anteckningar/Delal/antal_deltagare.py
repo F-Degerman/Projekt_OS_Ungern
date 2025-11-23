@@ -7,17 +7,17 @@ df = df.merge(noc, on="NOC", how="left")
 
 hungary = df[df["region"] == "Hungary"]
 
-deltagare_per_år = (
+deltagare_per_ar = (
     hungary.groupby("Year")["ID"]
     .nunique()
     .reset_index(name="Antal deltagare")
 )
 fig = px.line(
-    deltagare_per_år,
+    deltagare_per_ar,
     x="Year",
     y="Antal deltagare",
     markers=True,
-    title="Antal deltagare från unger per OS"
+    title="Antal deltagare fran unger per OS"
 )
 fig.update_xaxes(dtick=4)
 fig.show()
