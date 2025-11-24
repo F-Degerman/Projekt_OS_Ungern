@@ -3,7 +3,7 @@ import plotly.graph_objects as go
 from graph_data import aim25g_df, final_participants, medals_sport, medals_olympic, medals_olympic_d, hun_top10_sports_52, medal_by_sport_sex52, medal_counts_east_noc52, gymnastics_gender_all, gender_summary, confetti
 from dash import Input, Output
 
-def _style_fig(fig, height=650):
+def _style_fig(fig, height=600):
     """ Set height and papercolor for graphs. """
     fig.update_layout(height=height, paper_bgcolor="#f9f9f9")
     return fig
@@ -43,6 +43,7 @@ def register_callbacks(app):
                 markers=True,
                 title="Hungary: number of participants per year", 
                 subtitle="Summer vs. winter", 
+                hover_data="City", 
                 line_shape="spline")
 
             fig.update_xaxes(type="linear", dtick=2, ticklabelposition="outside left", tickangle=-45)
@@ -113,22 +114,6 @@ def register_callbacks(app):
                 color= "Sport")
             return _style_fig(fig), question
 
-        ## Hungary: medals grouped by sport and gender 1952
-        elif selected_value == "medals_sport_gender":
-            question = "How was the medal distribution between genders in 1952?"
-            fig = px.bar(
-                medal_by_sport_sex52,
-                x="Sport",
-                y="Total",
-                color="Sex",
-                color_discrete_map={"M": "#004B23", "F": "#C50000"},
-                barmode="group",
-                title="Hungary: medals grouped by sport and gender",
-                subtitle="1952",
-                labels={"Total": "Medals", "Sport": "Sport", "Sex": "Gender"})
-            fig.for_each_trace(lambda label: label.update(name="Male" if label.name == "M" else "Female"))
-            return _style_fig(fig), question
-
         ## Overall: medal comparison of Eastern European nations 1952
         elif selected_value == "comp_een":
             question = "How did Hungary perform compared to other Eastern European nations in 1952?"
@@ -148,6 +133,22 @@ def register_callbacks(app):
             fig.update_layout(legend_traceorder="reversed")
             return _style_fig(fig), question
         
+        ## Hungary: medals grouped by sport and gender 1952
+        elif selected_value == "medals_sport_gender":
+            question = "How was the medal distribution between genders in 1952?"
+            fig = px.bar(
+                medal_by_sport_sex52,
+                x="Sport",
+                y="Total",
+                color="Sex",
+                color_discrete_map={"M": "#004B23", "F": "#C50000"},
+                barmode="group",
+                title="Hungary: medals grouped by sport and gender",
+                subtitle="1952",
+                labels={"Total": "Medals", "Sport": "Sport", "Sex": "Gender"})
+            fig.for_each_trace(lambda label: label.update(name="Male" if label.name == "M" else "Female"))
+            return _style_fig(fig), question
+
         ## Gymnastics: gender comparison
         elif selected_value == "gymnastics_gender":
             question = "What does the gender distribution in gymnastics look like?"
@@ -166,7 +167,7 @@ def register_callbacks(app):
         
         ## Hungary: medal distribution across time based on gender
         elif selected_value == "medal_dist_gender":
-            question = "How many Hungarian male and female medalists have there been throughout history?"
+            question = "How did women’s participation and results in 1952 differ from the surrounding years?"
             fig = go.Figure()
             
             fig.add_bar(
@@ -174,7 +175,7 @@ def register_callbacks(app):
                 y=gender_summary["Medalists"],
                 name="Medalists",
                 hovertemplate="Medalists: %{y}<extra></extra>", 
-                marker_color="orange")
+                marker_color="gray")
             
             fig.add_bar(
                 x=gender_summary.loc[gender_summary["Sex"]=="F", "Year_sex"],
@@ -200,7 +201,8 @@ def register_callbacks(app):
         
         ## ENDING
         elif selected_value == "ending":
-            question = "Thank you for listening!"
+            question = ""
+            # NOTE: copied from Copilot after prompting a px.scatter() with exploding confetti in front of a text
             fig = px.scatter(
                 confetti,
                 x="x",

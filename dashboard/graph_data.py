@@ -107,7 +107,7 @@ full_years = pd.concat([
 
 hun_participants = (
     hun_df.drop_duplicates(subset=["ID", "Year", "Season"])
-       .groupby(["Year", "Season"])["ID"]
+       .groupby(["Year", "Season", "City"])["ID"]
        .nunique()
        .reset_index(name="Participants"))
 
@@ -162,15 +162,6 @@ unique_medals_sport_52.sort_values(by= "Total", ascending=False, inplace=True)
 
 hun_top10_sports_52 = unique_medals_sport_52.reset_index()
 
-## Hungary: medals grouped by sport and gender 1952
-top_sports_52 = hun_top10_sports_52["Sport"]
-hun52_top_sports_df = hun_52[hun_52["Sport"].isin(top_sports_52)]
- 
-hun52_top_sports_df = hun52_top_sports_df.drop_duplicates(subset=["Sport", "Event", "Medal"])
- 
-medal_by_sport_sex52 = hun52_top_sports_df.groupby(["Sport", "Sex", "Medal"]).size().reset_index(name="Count")
-medal_by_sport_sex52 = medal_by_sport_sex52.groupby(["Sport", "Sex"])["Count"].sum().reset_index(name="Total")
-
 ## Overall: medal comparison of Eastern European nations 1952
 east_nations = ['RUS', 'URS', 'EUN', 'UKR', 'BLR', 'MDA', 'GEO', 'ARM', 'AZE', 'KAZ',
  'UZB', 'KGZ', 'TJK', 'LTU', 'LAT', 'EST',
@@ -184,6 +175,15 @@ east_nations52_df = east_nations_df[east_nations_df["Year"] == 1952]
  
 unique_medals_by_east_noc = east_nations52_df.drop_duplicates(subset=["NOC", "Sport", "Event", "Medal"])
 medal_counts_east_noc52 = unique_medals_by_east_noc.groupby(["NOC", "Medal"]).size().reset_index(name="Count")
+
+## Hungary: medals grouped by sport and gender 1952
+top_sports_52 = hun_top10_sports_52["Sport"]
+hun52_top_sports_df = hun_52[hun_52["Sport"].isin(top_sports_52)]
+ 
+hun52_top_sports_df = hun52_top_sports_df.drop_duplicates(subset=["Sex", "Event", "Medal"])
+ 
+medal_by_sport_sex52 = hun52_top_sports_df.groupby(["Sport", "Sex", "Medal"]).size().reset_index(name="Count")
+medal_by_sport_sex52 = medal_by_sport_sex52.groupby(["Sport", "Sex"])["Count"].sum().reset_index(name="Total")
 
 ## Gymnastics: gender comparison all years vs 1952
 # All years
