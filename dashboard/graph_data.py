@@ -172,16 +172,15 @@ pie_data = pd.DataFrame({
     "Participants": participants_per_noc}).reset_index().dropna()
 
 ## Overall: correlation between medals and participants
-athletes_per_year = (df.drop_duplicates(subset=["Year", "NOC", "ID"])
+athletes_per_year = (df.drop_duplicates(subset=["Year", "NOC", "Event", "ID"])
                      .groupby(["Year", "NOC"])
                      .size()
                      .reset_index(name="Athletes"))
-medals_per_year = (df.drop_duplicates(subset=["Year", "NOC", "Sport", "Event", "Medal"])
+medals_per_year = (df.dropna(subset=["Medal"]).drop_duplicates(subset=["Year", "NOC", "Sport", "Event", "Medal"])
                    .groupby(["Year", "NOC"])
                    .size()
                    .reset_index(name="Medals"))
 nation_year = athletes_per_year.merge(medals_per_year, on=["Year", "NOC"], how="left")
-nation_year["Medals"] = nation_year["Medals"].fillna(0)
 
 ## Hungary: medals grouped by sport and gender 1952
 top_sports_52 = hun_top10_sports_52["Sport"]

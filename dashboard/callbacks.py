@@ -93,7 +93,7 @@ def register_callbacks(app):
         ## Hungary: medals per sport 1952 vs all years
         elif selected_value == "sport_medals":
             question = "In which sports did Hungary win medals during their peak year 1952?"
-            fig = make_subplots(rows=1, cols=2, subplot_titles=("1952", "Total"))
+            fig = make_subplots(rows=1, cols=2, subplot_titles=("1952", "All years"))
 
             color_map = {
                 "Gymnastics": "orchid",
@@ -122,7 +122,7 @@ def register_callbacks(app):
                 fig.add_trace(trace, row=1, col=1)
 
             fig2 = px.bar(
-                medals_sport,
+                medals_sport.tail(14),
                 x="Medals", 
                 y="Sport", 
                 orientation="h", 
@@ -195,9 +195,9 @@ def register_callbacks(app):
                 y="Medals",
                 color="NOC",
                 opacity= 0.7,
-                hover_data="Year",
+                hover_data="Year", 
                 title="Overall: correlation between medals and participants", 
-                subtitle="All countries, all years (correlation: 0.97)")
+                subtitle="All countries, all years (correlation: 0.80)")
             return _style_fig(fig), question
         
         ## Hungary: medals grouped by sport and gender 1952
