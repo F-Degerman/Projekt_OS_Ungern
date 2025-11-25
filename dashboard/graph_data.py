@@ -152,24 +152,41 @@ unique_medals_sport_52.sort_values(by= "Total", ascending=True, inplace=True)
 hun_top10_sports_52 = unique_medals_sport_52.reset_index()
 
 ## Overall: medal comparison of Eastern European nations 1952
-east_nations = [
-    'RUS', 'URS', 'EUN', 'UKR', 'BLR', 'MDA', 'GEO', 'ARM', 'AZE', 'KAZ',
-    'UZB', 'KGZ', 'TJK', 'LTU', 'LAT', 'EST',
-    'HUN', 'POL', 'ROU', 'BUL', 'ALB', 'YUG', 'SCG', 'SRB', 'CRO', 'SLO',
-    'BIH', 'MKD', 'MNE', 'KOS',
-    'CZE', 'TCH', 'SVK']
- 
-east_nations_df = df[df["NOC"].isin(east_nations)]
-east_nations52_df = east_nations_df[east_nations_df["Year"] == 1952]
+nation_colors = {
+    "BUL" : "#0000FF",
+    "HUN" : "#00ff00",
+    "POL" : "#f3de00",
+    "YUG" : "#7300ff",
+    "URS" : "#e40000",
+    "ROU" : "#7f4f06",
+    "TCH" : "#565656"
+}
 
-unique_medals_by_east_noc = east_nations52_df.drop_duplicates(subset=["Year", "NOC", "Event", "Medal"])
-medal_counts_east_noc52 = unique_medals_by_east_noc.groupby(["NOC", "Medal"]).size().reset_index(name="Count")
-medals_per_noc = unique_medals_by_east_noc.groupby("NOC")["Medal"].count()
-participants_per_noc = east_nations52_df.groupby("NOC")["ID"].nunique()
+east_nations = ['RUS', 'URS', 'EUN', 'UKR', 'BLR', 'MDA', 'GEO', 'ARM', 'AZE', 'KAZ',
+ 'UZB', 'KGZ', 'TJK', 'LTU', 'LAT', 'EST',
+ 'HUN', 'POL', 'ROU', 'BUL', 'ALB', 'YUG', 'SCG', 'SRB', 'CRO', 'SLO',
+ 'BIH', 'MKD', 'MNE', 'KOS',
+ 'CZE', 'TCH', 'SVK']
 
-pie_data = pd.DataFrame({
-    "Medals": medals_per_noc, 
-    "Participants": participants_per_noc}).reset_index().dropna()
+df_east_nations = df[df["NOC"].isin(east_nations)]
+df_east_nations52 = df_east_nations[df_east_nations["Year"] == 1952]
+
+### East nations medals data
+unique_medals_by_eastNoc = df_east_nations52.drop_duplicates(subset=["NOC", "Sport", "Event", "Medal"])
+medal_counts_eastNoc52 = unique_medals_by_eastNoc.groupby(["NOC", "Medal"]).size().reset_index(name="Count")
+
+### East nations medals vs athletes data
+athletes_1952 = (df_east_nations52.drop_duplicates(subset=["NOC", "ID"])
+                     .groupby(["NOC"])
+                     .size()
+                     .reset_index(name="Athletes"))
+medals_1952 = (df_east_nations52[df_east_nations52["Medal"].notna()].drop_duplicates(subset=["NOC", "Event", "Medal"])
+                   .groupby(["NOC"])
+                   .size()
+                   .reset_index(name="Medals"))
+medals_athletes1952 = athletes_1952.merge(medals_1952, on="NOC", how="left")
+medals_athletes1952["Medals"] = medals_athletes1952["Medals"].fillna(0)
+medals_athletes1952["Medal per athlete"] = round((medals_athletes1952["Medals"]/medals_athletes1952["Athletes"])*100, 1)
 
 ## Overall: correlation between medals and participants
 athletes_per_year = (df.drop_duplicates(subset=["Year", "NOC", "Event", "ID"])
@@ -219,7 +236,7 @@ gymnastics_1952_combined["Period"] = "1952"
 gymnastics_gender_all = pd.concat([gymnastics_combined, gymnastics_1952_combined])
 
 ## Hungary: medal distribution across time based on gender
-hun = hun_df[hun_df["Year"].between(1920, 1968)]
+hun = hun_df[hun_df["Year"].between(1896, 2016)]
 
 gender_summary = (hun.groupby(["Year", "Sex"]).agg(Medalists=("Medal", lambda s: s.notna().sum()), Non_medalists=("Medal", lambda s: s.isna().sum())).reset_index())
 gender_summary["Year_sex"] = gender_summary["Year"].astype(str) + " " + gender_summary["Sex"]

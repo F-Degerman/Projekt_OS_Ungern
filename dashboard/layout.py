@@ -18,7 +18,7 @@ def set_layout():
                              {"label": "6. Overall: correlation between medals and participants", "value": "nation_year"}, 
                              {"label": "7. Hungary: medals grouped by sport and gender 1952", "value": "medals_sport_gender"}, 
                              {"label": "8. Overall: gender comparison in gymnastics", "value": "gymnastics_gender"}, 
-                             {"label": "10. Hungary: medal distribution across time based on gender", "value": "medal_dist_gender"}, 
+                             {"label": "9. Hungary: medal distribution across time based on gender", "value": "medal_dist_gender"}, 
                              {"label": "That's all, folks!", "value": "ending"}], 
                 className="dropdown")]), 
             html.Div([

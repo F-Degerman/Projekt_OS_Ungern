@@ -2,7 +2,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import pandas as pd
-from graph_data import aim25g_df, final_participants, medals_sport, medals_olympic, medals_olympic_d, hun_top10_sports_52, nation_year, medal_by_sport_sex52, medal_counts_east_noc52, pie_data, gymnastics_gender_all, gender_summary, confetti
+from graph_data import aim25g_df, final_participants, medals_sport, medals_olympic, medals_olympic_d, hun_top10_sports_52, medal_by_sport_sex52, medal_counts_eastNoc52, medals_athletes1952, nation_colors, nation_year, gymnastics_gender_all, gender_summary, confetti
 from dash import Input, Output
 
 def _style_fig(fig, height=600):
@@ -141,49 +141,45 @@ def register_callbacks(app):
 
         ## Overall: medal comparison of Eastern European nations 1952
         elif selected_value == "comp_een":
-            question = "How did Hungary perform compared to other Eastern European nations in 1952?"
-            fig = make_subplots(rows=2, cols=7, 
-                                subplot_titles=["Medals 1952"] + list(pie_data["NOC"]), 
-                                row_heights=[0.7, 0.3], 
-                                column_widths=[1/7, 1/7, 1/7, 1/7, 1/7, 1/7, 1/7], 
-                                specs=[[{"type": "bar", "colspan": 7}, None, None, None, None, None, None],
-                                       [{"type": "pie"}]*7])
-
-            fig1 = px.bar(
-                medal_counts_east_noc52,
-                x="Count",
-                y="NOC",
+            question="How did Hungary perform compared to other Eastern European nations in 1952?"
+            fig_een_bar = px.bar(
+                medal_counts_eastNoc52,
+                x="NOC",
+                y="Count",
                 color="Medal",
-                color_discrete_map={"Gold": "orange", "Silver": "grey", "Bronze": "sienna"},
-                text_auto=True,
-                category_orders={"Medal": ["Bronze", "Silver", "Gold"]}, 
-                orientation="h")
-            fig1.update_traces(textangle=0)
+                title="Eastern European nations in 1952",
+                labels={"Count":"Number of medals", "NOC":"Eastern European nations"},
+                color_discrete_map={'Gold': 'orange', 'Silver': 'grey', 'Bronze': 'sienna'},
+                category_orders={"Medal": ["Bronze", "Silver", "Gold"]},
+                text_auto=True)
+            
+            fig_een_scatter = px.scatter(
+                medals_athletes1952,
+                x="Athletes",
+                y="Medals",
+                color="NOC",
+                size="Medal per athlete",
+                text="Medal per athlete",
+                color_discrete_map=nation_colors)
 
-            for trace in fig1.data:
+            fig_een_scatter.update_traces(
+                mode="markers+text",
+                textposition="top center",
+                textfont=dict(size=12))
+            
+            fig = make_subplots(rows=1, cols=2, subplot_titles=("Medal count", "Medals vs. Athletes ratio"))
+            
+            for trace in fig_een_bar.data:
                 fig.add_trace(trace, row=1, col=1)
+            
+            for trace in fig_een_scatter.data:
+                fig.add_trace(trace, row=1, col=2)
 
-            col = 1
-            for noc in pie_data["NOC"].unique():
-                noc_df = pie_data[pie_data["NOC"] == noc].iloc[0]
-                df_noc = pd.DataFrame({
-                    "Category": ["Medals", "Participants"], 
-                    "Value": [noc_df["Medals"], noc_df["Participants"]], 
-                    "NOC": [noc, noc]})
-                
-                figx = px.pie(
-                    df_noc, 
-                    values="Value", 
-                    names="Category",
-                    color="Category", 
-                    color_discrete_map={"Medals": "grey", "Participants": "#004B23"})
-                figx.update_traces(rotation=60)
-                
-                for trace in figx.data:
-                    fig.add_trace(trace, row=2, col=col)
-                    col += 1
+            fig.update_xaxes(title_text="Nations", row=1, col=1)
+            fig.update_xaxes(title_text="Athletes", row=1, col=2)
+            fig.update_yaxes(title_text="Medals", range=[0, 80])
 
-            fig.update_layout(title_text="Medals and medals to participants ratio between Eastern European nations in 1952", barmode="stack")
+            fig.update_layout(showlegend=True, title_text="Eastern Bloc nations 1952", barmode="stack")
             return _style_fig(fig), question
         
         ## Overall: correlation between medals and participants
