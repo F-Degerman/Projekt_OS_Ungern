@@ -220,7 +220,7 @@ def register_callbacks(app):
                 names="Sex", 
                 facet_col="Group", 
                 facet_row="Period", 
-                category_orders={"Group": ["All countries", "Hungary", "Sweden"]}, 
+                category_orders={"Group": ["All countries", "Hungary", "Soviet Union"]}, 
                 title="Gymnastics: gender comparison", 
                 subtitle="All years vs 1952", 
                 color="Sex", 
