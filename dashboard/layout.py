@@ -11,11 +11,11 @@ def set_layout():
                 dcc.Dropdown(
                     id="hungary-dropdown",
                     options=[{"label": "Hungary: number of participants per year", "value": "final_participants"}, 
-                             {"label": "Hungary: medals won per sport", "value": "hun_most_medals"}, 
                              {"label": "Hungary: medals won per Olympics", "value": "hun_medals"}, 
                              {"label": "Hungary: medals won per Olympics (detailed)", "value": "hun_medals_d"}, 
-                             {"label": "Hungary: medals per sport 1952", "value": "sport_medals_1952"}, 
+                             {"label": "Hungary: medals per sport 1952 vs all years", "value": "sport_medals"}, 
                              {"label": "Overall: medal comparison of Eastern European nations 1952", "value": "comp_een"}, 
+                             {"label": "Overall: correlation between medals and participants", "value": "nation_year"}, 
                              {"label": "Hungary: medals grouped by sport and gender 1952", "value": "medals_sport_gender"}, 
                              {"label": "Overall: gender comparison in gymnastics", "value": "gymnastics_gender"}, 
                              {"label": "Hungary: medal distribution across time based on gender", "value": "medal_dist_gender"}, 

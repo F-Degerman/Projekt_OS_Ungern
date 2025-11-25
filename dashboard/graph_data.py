@@ -9,7 +9,7 @@ hun_df = df[df["NOC"] == "HUN"].copy().reset_index().sort_values(by="Year")
 
 # Graph data
 ## Welcoming graph
-## NOTE: copied from Copilot after prompting a px.scatter() with data points in the shape of "AIM25G"
+### NOTE: copied from Copilot after prompting a px.scatter() with data points in the shape of "AIM25G"
 def letter_to_points(letter_pattern, x_offset=0, y_offset=0, scale=2):
     points = []
     for y, row in enumerate(letter_pattern):
@@ -114,18 +114,6 @@ hun_participants = (
 final_participants = full_years.merge(hun_participants, on=["Year", "Season"], how="left")
 final_participants["Participants"] = final_participants["Participants"].fillna(0)
 
-## Hungary: medals won per sport
-unique_medals_sport = (hun_df[["Year", "Event", "Sport", "Medal"]]
-                        .dropna()
-                        .drop_duplicates(subset=["Year", "Event", "Medal"]))
-medals_sport = (pd.DataFrame(unique_medals_sport
-                        .groupby("Sport")["Medal"]
-                        .value_counts()
-                        .unstack()
-                        .sum(axis=1))
-                        .rename(columns={0:"Medals"})
-                        .sort_values("Medals", ascending=False))
-
 ## Hungary: medals won per Olympics
 unique_medals_olympic = (hun_df[["Year", "Event", "Season", "Medal"]]
                         .dropna(subset=["Year", "Event", "Medal"])
@@ -152,29 +140,48 @@ melted = medals_olympic_d.melt(id_vars=["Year", "ExtraSeason"], value_vars=["Bro
 melted["SeasonYear"] = melted["ExtraSeason"] + " " + melted["Year"].astype(str)
 medals_olympic_d = melted.drop(["ExtraSeason"], axis=1)
 
-## Hungary: medals per sport 1952
-hun_52 = hun_df[hun_df["Year"] == 1952]
+## Hungary: medals per sport 1952 vs all years
+unique_medals_sport = (hun_df[["Year", "Event", "Sport", "Medal"]].dropna().drop_duplicates(subset=["Year", "Event", "Medal"]))
+medals_sport = (pd.DataFrame(unique_medals_sport.groupby("Sport")["Medal"].value_counts().unstack().sum(axis=1)).rename(columns={0:"Medals"}).sort_values("Medals", ascending=True).reset_index())
 
+hun_52 = hun_df[hun_df["Year"] == 1952]
 unique_medal_event_52 = hun_52.drop_duplicates(subset=["Sport", "Event", "Medal"])
 unique_medals_sport_52 = unique_medal_event_52.groupby(["Sport", "Medal"]).size().unstack(fill_value=0)
 unique_medals_sport_52["Total"] = unique_medals_sport_52[["Gold", "Silver", "Bronze"]].sum(axis=1)
-unique_medals_sport_52.sort_values(by= "Total", ascending=False, inplace=True)
-
+unique_medals_sport_52.sort_values(by= "Total", ascending=True, inplace=True)
 hun_top10_sports_52 = unique_medals_sport_52.reset_index()
 
 ## Overall: medal comparison of Eastern European nations 1952
-east_nations = ['RUS', 'URS', 'EUN', 'UKR', 'BLR', 'MDA', 'GEO', 'ARM', 'AZE', 'KAZ',
- 'UZB', 'KGZ', 'TJK', 'LTU', 'LAT', 'EST',
- 'HUN', 'POL', 'ROU', 'BUL', 'ALB', 'YUG', 'SCG', 'SRB', 'CRO', 'SLO',
- 'BIH', 'MKD', 'MNE', 'KOS',
- 'CZE', 'TCH', 'SVK']
+east_nations = [
+    'RUS', 'URS', 'EUN', 'UKR', 'BLR', 'MDA', 'GEO', 'ARM', 'AZE', 'KAZ',
+    'UZB', 'KGZ', 'TJK', 'LTU', 'LAT', 'EST',
+    'HUN', 'POL', 'ROU', 'BUL', 'ALB', 'YUG', 'SCG', 'SRB', 'CRO', 'SLO',
+    'BIH', 'MKD', 'MNE', 'KOS',
+    'CZE', 'TCH', 'SVK']
  
 east_nations_df = df[df["NOC"].isin(east_nations)]
- 
 east_nations52_df = east_nations_df[east_nations_df["Year"] == 1952]
- 
-unique_medals_by_east_noc = east_nations52_df.drop_duplicates(subset=["NOC", "Sport", "Event", "Medal"])
+
+unique_medals_by_east_noc = east_nations52_df.drop_duplicates(subset=["Year", "NOC", "Event", "Medal"])
 medal_counts_east_noc52 = unique_medals_by_east_noc.groupby(["NOC", "Medal"]).size().reset_index(name="Count")
+medals_per_noc = unique_medals_by_east_noc.groupby("NOC")["Medal"].count()
+participants_per_noc = east_nations52_df.groupby("NOC")["ID"].nunique()
+
+pie_data = pd.DataFrame({
+    "Medals": medals_per_noc, 
+    "Participants": participants_per_noc}).reset_index().dropna()
+
+## Overall: correlation between medals and participants
+athletes_per_year = (df.drop_duplicates(subset=["Year", "NOC", "ID"])
+                     .groupby(["Year", "NOC"])
+                     .size()
+                     .reset_index(name="Athletes"))
+medals_per_year = (df.drop_duplicates(subset=["Year", "NOC", "Sport", "Event", "Medal"])
+                   .groupby(["Year", "NOC"])
+                   .size()
+                   .reset_index(name="Medals"))
+nation_year = athletes_per_year.merge(medals_per_year, on=["Year", "NOC"], how="left")
+nation_year["Medals"] = nation_year["Medals"].fillna(0)
 
 ## Hungary: medals grouped by sport and gender 1952
 top_sports_52 = hun_top10_sports_52["Sport"]
@@ -186,7 +193,7 @@ medal_by_sport_sex52 = hun52_top_sports_df.groupby(["Sport", "Sex", "Medal"]).si
 medal_by_sport_sex52 = medal_by_sport_sex52.groupby(["Sport", "Sex"])["Count"].sum().reset_index(name="Total")
 
 ## Gymnastics: gender comparison all years vs 1952
-# All years
+### All years
 gymnastics_all = df[df["Sport"] == "Gymnastics"] 
 gymnastics_hun = df[(df["Sport"] == "Gymnastics") & (df["NOC"] == "HUN")]
 gymnastics_swe = df[(df["Sport"] == "Gymnastics") & (df["NOC"] == "SWE")]
@@ -198,7 +205,7 @@ swe_gymnastics_group = gymnastics_swe.assign(Group="Sweden")
 gymnastics_combined = pd.concat([all_gymnastics_group, hun_gymnastics_group, swe_gymnastics_group])
 gymnastics_combined["Period"] = "All years"
 
-# 1952
+### 1952
 gymnastics_all_1952 = df[(df["Sport"] == "Gymnastics") & (df["Year"] == 1952)]
 gymnastics_hun_1952 = df[(df["Sport"] == "Gymnastics") & (df["NOC"] == "HUN") & (df["Year"] == 1952)]
 gymnastics_swe_1952 = df[(df["Sport"] == "Gymnastics") & (df["NOC"] == "SWE") & (df["Year"] == 1952)]
@@ -219,7 +226,7 @@ gender_summary = (hun.groupby(["Year", "Sex"]).agg(Medalists=("Medal", lambda s:
 gender_summary["Year_sex"] = gender_summary["Year"].astype(str) + " " + gender_summary["Sex"]
 
 ## ENDING
-# NOTE: copied from Copilot after prompting a px.scatter() with exploding confetti in front of a text
+### NOTE: copied from Copilot after prompting a px.scatter() with exploding confetti in front of a text
 import numpy as np
 
 n_points = 250
