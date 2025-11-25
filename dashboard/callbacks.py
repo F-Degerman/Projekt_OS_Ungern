@@ -258,6 +258,14 @@ def register_callbacks(app):
                 hovertemplate="Male, no medal: %{y}<extra></extra>", 
                 marker_color="#004B23")
             
+            bar_categories = gender_summary["Year_sex"].unique() 
+            index_bar_1952 = [i for i, c in enumerate(bar_categories) if c.startswith("1952")] 
+
+            if index_bar_1952:
+                x0 = index_bar_1952[0] - 0.5
+                x1 = index_bar_1952[-1] + 0.5
+                fig.add_vrect(x0=x0, x1=x1, line_dash="dash")
+
             fig.update_layout(
                 barmode="stack",
                 title="Hungary: medal distribution across time based on gender", 
