@@ -238,6 +238,7 @@ gymnastics_gender_all = pd.concat([gymnastics_combined, gymnastics_1952_combined
 ## Hungary: medal distribution across time based on gender
 hun = hun_df[hun_df["Year"].between(1896, 2016)]
 
+
 gender_summary = (hun.groupby(["Year", "Sex"]).agg(Medalists=("Medal", lambda s: s.notna().sum()), Non_medalists=("Medal", lambda s: s.isna().sum())).reset_index())
 gender_summary["Year_sex"] = gender_summary["Year"].astype(str) + " " + gender_summary["Sex"]
 
