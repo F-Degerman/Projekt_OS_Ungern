@@ -1,7 +1,7 @@
 from dash import dcc, html
 
 def set_layout():
-    
+    """ Setting the layout, ID and class names of all dashboard components. """
     return html.Div([
         html.Div([
             html.Div([
